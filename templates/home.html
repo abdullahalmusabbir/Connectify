@@ -461,7 +461,7 @@
         loading.classList.remove('hidden');
         noPosts.classList.add('hidden');
 
-        const res = await apiCall('/posts/');
+        const res = await apiCall('/posts/home/');
         loading.classList.add('hidden');
 
         if (res.ok && Array.isArray(res.data)) {
@@ -625,9 +625,9 @@
         if (!currentUser) return;
 
         // Get all posts and filter by current user
-        const res = await apiCall('/posts/');
+        const res = await apiCall('/posts/home/');
         if (res.ok && Array.isArray(res.data)) {
-            const myPosts = res.data.filter(p => p.author?.id === currentUser.id);
+            const myPosts = res.data.filter(p => p.author?.id === currentUser.id && p.status === 'published');
             myPostCount = myPosts.length;
             document.getElementById('left-post-count').textContent = myPostCount;
 
@@ -662,11 +662,11 @@
         listEl.innerHTML = `<div class="flex justify-center py-4"><div class="spinner"></div></div>`;
 
         // Get all posts to extract unique authors (since we may not have access to /users/ without admin)
-        const res = await apiCall('/posts/');
+        const res = await apiCall('/posts/home/');
         if (res.ok && Array.isArray(res.data)) {
             const authorsMap = new Map();
             res.data.forEach(post => {
-                if (post.author && !authorsMap.has(post.author.id)) {
+                if (post.author && !authorsMap.has(post.author.id) ) {
                     authorsMap.set(post.author.id, {
                         ...post.author,
                         postCount: 1
@@ -783,8 +783,9 @@
         const repliesHTML = (comment.replies || []).map(reply => {
             const rAuthor = reply.author?.username || 'Unknown';
             const rColor = getUserColor(rAuthor);
+            const canDeleteReply = currentUser && (reply.author?.id === currentUser.id);
             return `
-                <div class="reply-item mt-2 flex gap-2 fade-in">
+                <div class="reply-item mt-2 flex gap-2 fade-in" id="comment-${reply.id}">
                     <div style="width:28px;height:28px;background:${rColor};border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;flex-shrink:0;">
                         ${rAuthor.charAt(0).toUpperCase()}
                     </div>
@@ -793,7 +794,10 @@
                             <p class="font-semibold text-gray-700 text-xs">${escapeHTML(rAuthor)}</p>
                             <p class="text-xs text-gray-600">${escapeHTML(reply.content)}</p>
                         </div>
-                        <p class="text-xs text-gray-400 ml-3 mt-0.5">${timeAgo(reply.created_at)}</p>
+                        <div class="flex items-center gap-3 ml-3 mt-0.5">
+                            <p class="text-xs text-gray-400">${timeAgo(reply.created_at)}</p>
+                            ${canDeleteReply ? `<button onclick="deleteComment(${reply.id})" class="text-xs text-red-400 hover:text-red-600 transition-colors">Delete</button>` : ''}
+                        </div>
                     </div>
                 </div>
             `;

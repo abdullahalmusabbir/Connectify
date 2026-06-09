@@ -279,6 +279,20 @@ class PostListView(generics.ListAPIView):
             status__in=['published', 'draft']
         ).select_related('author')
 
+class PostListHomeView(generics.ListAPIView):
+    """
+    GET /posts/home/
+    Jei keo dekhte parbe (Guest o)
+    Shudhu published posts ashbe
+    """
+    serializer_class = PostListSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Post.objects.filter(
+            status__in= ['published']
+        ).select_related('author')
+
 
 class PostDetailView(generics.RetrieveAPIView):
     """

@@ -1356,19 +1356,55 @@
     }
 
     // CREATE / EDIT POST
-    function openEditPostModal(postId) {
-        const post = profilePosts.find(p=>p.id===postId); if(!post)return;
-        editingPostId=postId;
-        document.getElementById('post-title-input').value   = post.title;
-        document.getElementById('post-content-input').value = post.content;
-        document.getElementById('post-status-select').value = post.status;
-        document.getElementById('upload-placeholder').classList.remove('hidden');
-        document.getElementById('upload-preview').classList.add('hidden');
+    async function openEditPostModal(postId) {
+        let post = profilePosts.find(p => p.id === postId);
+        editingPostId = postId;
+
+        // যদি cached post এ content না থাকে, detail endpoint থেকে নিন
+        if (!post || !post.content) {
+            const res = await apiCall(`/posts/${postId}/`);
+            if (!res.ok) { showToast('Failed to load post details', 'error'); return; }
+            post = res.data;
+            // cache আপডেট (ঐচ্ছিক)
+            const ai = allPostsCache.findIndex(p => p.id === postId);
+            if (ai !== -1) allPostsCache[ai] = post;
+            const pi = profilePosts.findIndex(p => p.id === postId);
+            if (pi !== -1) profilePosts[pi] = post;
+        }
+
+        document.getElementById('post-title-input').value   = post.title || '';
+        document.getElementById('post-content-input').value = post.content || '';
+        const statusSelect = document.getElementById('post-status-select');
+        // যদি select-এ ওই status না থাকে, অস্থায়ী option যোগ করুন
+        if (post.status && ![...statusSelect.options].some(o => o.value === post.status)) {
+            const opt = document.createElement('option');
+            const labelMap = { published: '🌍 Published', draft: '🔒 Draft', archived: '📦 Archived' };
+            opt.value = post.status;
+            opt.textContent = labelMap[post.status] || post.status;
+            opt.dataset.temp = 'true';
+            statusSelect.appendChild(opt);
+        }
+        statusSelect.value = post.status || 'draft';
         document.getElementById('post-error-msg').classList.add('hidden');
+
+        // দেখান যদি পোস্টে ইমেজ থাকে
+        if (post.post_image) {
+            document.getElementById('preview-img').src = post.post_image;
+            const fn = post.post_image.split('/').pop() || '';
+            document.getElementById('preview-filename').textContent = fn;
+            document.getElementById('upload-placeholder').classList.add('hidden');
+            document.getElementById('upload-preview').classList.remove('hidden');
+        } else {
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+            document.getElementById('upload-preview').classList.add('hidden');
+            document.getElementById('preview-img').src = '';
+            document.getElementById('preview-filename').textContent = '';
+        }
+
         document.getElementById('post-modal-title').textContent = 'Edit Post';
         document.getElementById('submit-post-btn').textContent  = 'Save Changes';
         document.getElementById('create-post-modal').classList.remove('hidden');
-        document.body.style.overflow='hidden';
+        document.body.style.overflow = 'hidden';
     }
     function openCreatePostModal() {
         if(!currentRole.canCreatePost){showToast('You cannot create posts.','error');return;}
@@ -1385,7 +1421,11 @@
         document.body.style.overflow='hidden';
         document.getElementById('post-title-input').focus();
     }
-    function closeCreatePostModal(){document.getElementById('create-post-modal').classList.add('hidden');document.body.style.overflow='';editingPostId=null;}
+    function closeCreatePostModal(){
+        document.getElementById('create-post-modal').classList.add('hidden');document.body.style.overflow='';
+        document.querySelectorAll('#post-status-select option[data-temp="true"]').forEach(o => o.remove());
+        editingPostId=null;
+    }
 
     function previewImage(input){
         if(input.files&&input.files[0]){
@@ -1401,28 +1441,51 @@
     }
 
     async function submitCreatePost(){
-        const title=document.getElementById('post-title-input').value.trim();
-        const content=document.getElementById('post-content-input').value.trim();
-        const status=document.getElementById('post-status-select').value;
-        const img=document.getElementById('post-image-input').files[0];
-        const errEl=document.getElementById('post-error-msg');
-        const btn=document.getElementById('submit-post-btn');
+        const title = document.getElementById('post-title-input').value.trim();
+        const content = document.getElementById('post-content-input').value.trim();
+        const status = document.getElementById('post-status-select').value;
+        const img = document.getElementById('post-image-input').files[0];
+        const errEl = document.getElementById('post-error-msg');
+        const btn = document.getElementById('submit-post-btn');
         errEl.classList.add('hidden');
-        if(title.length<5){errEl.textContent='Title must be at least 5 characters.';errEl.classList.remove('hidden');return;}
-        if(!content){errEl.textContent='Content is required.';errEl.classList.remove('hidden');return;}
-        btn.disabled=true;btn.textContent=editingPostId?'Saving...':'Posting...';
+        if (title.length < 5) { errEl.textContent = 'Title must be at least 5 characters.'; errEl.classList.remove('hidden'); return; }
+        if (!content) { errEl.textContent = 'Content is required.'; errEl.classList.remove('hidden'); return; }
+        btn.disabled = true; btn.textContent = editingPostId ? 'Saving...' : 'Posting...';
         let res;
-        if(editingPostId){res=await apiCall(`/posts/${editingPostId}/update/`,'PATCH',{title,content,status});}
-        else if(img){const fd=new FormData();fd.append('title',title);fd.append('content',content);fd.append('status',status);fd.append('post_image',img);res=await apiCall('/posts/create/','POST',fd,true);}
-        else{res=await apiCall('/posts/create/','POST',{title,content,status});}
-        btn.disabled=false;btn.textContent=editingPostId?'Save Changes':'Post';
-        if(res.ok){
-            showToast(editingPostId?'Post updated! ✅':'Post created! 🎉','success');
-            closeCreatePostModal();profileComments=[];await loadMyPosts();
-            if(currentRole.canPublish)await loadPendingPosts();
-        }else{
-            const err=res.data?.title?.[0]||res.data?.content?.[0]||res.data?.detail||res.data?.error||'Failed.';
-            errEl.textContent=err;errEl.classList.remove('hidden');
+
+        if (editingPostId) {
+            // যদি edit-এ নতুন image দাগানো হয়ে থাকে, FormData পাঠান (multipart)
+            if (img) {
+                const fd = new FormData();
+                fd.append('title', title);
+                fd.append('content', content);
+                fd.append('status', status);
+                fd.append('post_image', img);
+                res = await apiCall(`/posts/${editingPostId}/update/`, 'PATCH', fd, true);
+            } else {
+                res = await apiCall(`/posts/${editingPostId}/update/`, 'PATCH', { title, content, status });
+            }
+        } else {
+            if (img) {
+                const fd = new FormData();
+                fd.append('title', title);
+                fd.append('content', content);
+                fd.append('status', status);
+                fd.append('post_image', img);
+                res = await apiCall('/posts/create/', 'POST', fd, true);
+            } else {
+                res = await apiCall('/posts/create/', 'POST', { title, content, status });
+            }
+        }
+
+        btn.disabled = false; btn.textContent = editingPostId ? 'Save Changes' : 'Post';
+        if (res.ok) {
+            showToast(editingPostId ? 'Post updated! ✅' : 'Post created! 🎉', 'success');
+            closeCreatePostModal(); profileComments = []; await loadMyPosts();
+            if (currentRole.canPublish) await loadPendingPosts();
+        } else {
+            const err = res.data?.title?.[0] || res.data?.content?.[0] || res.data?.detail || res.data?.error || 'Failed.';
+            errEl.textContent = err; errEl.classList.remove('hidden');
         }
     }
     
