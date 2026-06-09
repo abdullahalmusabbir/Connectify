@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+{% block title %}Create Account - ConnectBook{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12 bg-surface">
+    <div class="w-full max-w-4xl flex flex-col lg:flex-row items-center justify-center gap-10">
+
+        <!-- ── Left Side - Branding ── -->
+        <div class="lg:flex-1 text-center lg:text-left max-w-sm">
+            <div class="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                <div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 15v-5H9l3-7 3 7h-2v5h-2z"/>
+                    </svg>
+                </div>
+                <span class="text-4xl font-bold text-primary">ConnectBook</span>
+            </div>
+            <p class="text-gray-600 text-lg leading-relaxed">
+                Join millions of people sharing moments that matter.
+            </p>
+
+            <!-- Benefits -->
+            <div class="hidden lg:flex flex-col gap-4 mt-8">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-primary-light rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700 text-sm">Free Forever</p>
+                        <p class="text-gray-500 text-xs">No hidden charges or subscription fees</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700 text-sm">Secure & Private</p>
+                        <p class="text-gray-500 text-xs">Your data is safe and protected</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700 text-sm">Growing Community</p>
+                        <p class="text-gray-500 text-xs">Connect with people worldwide</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Right Side - Register Form ── -->
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Create Account</h1>
+                    <p class="text-gray-500 text-sm mt-1">It's quick and easy</p>
+                </div>
+
+                <!-- Alert -->
+                <div id="alert-box" class="hidden mb-4 p-3 rounded-xl text-sm font-medium flex items-center gap-2"></div>
+
+                <!-- Form -->
+                <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4" novalidate>
+
+                    <!-- Username -->
+                    <div class="space-y-1">
+                        <label class="text-sm font-semibold text-gray-700">
+                            Username <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                id="reg-username"
+                                placeholder="Choose a username"
+                                autocomplete="username"
+                                oninput="validateUsernameField()"
+                                class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all bg-gray-50 focus:bg-white"
+                                required
+                            >
+                            <!-- Validation Icon -->
+                            <div class="absolute inset-y-0 right-3 flex items-center" id="username-valid-icon"></div>
+                        </div>
+                        <p id="reg-username-error" class="text-red-500 text-xs hidden"></p>
+                        <p id="reg-username-hint" class="text-gray-400 text-xs">Letters, numbers, and underscores only</p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="space-y-1">
+                        <label class="text-sm font-semibold text-gray-700">
+                            Email <span class="text-gray-400 font-normal text-xs">(optional)</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="email"
+                                id="reg-email"
+                                placeholder="Enter your email (optional)"
+                                autocomplete="email"
+                                oninput="validateEmailField()"
+                                class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all bg-gray-50 focus:bg-white"
+                            >
+                            <div class="absolute inset-y-0 right-3 flex items-center" id="email-valid-icon"></div>
+                        </div>
+                        <p id="reg-email-error" class="text-red-500 text-xs hidden"></p>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="space-y-1">
+                        <label class="text-sm font-semibold text-gray-700">
+                            Password <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                id="reg-password"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                oninput="validatePasswordField()"
+                                class="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all bg-gray-50 focus:bg-white"
+                                required
+                            >
+                            <button type="button"
+                                onclick="togglePasswordVisibility('reg-password', 'eye-icon-reg')"
+                                class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg id="eye-icon-reg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="reg-password-error" class="text-red-500 text-xs hidden"></p>
+
+                        <!-- Password Strength Bar -->
+                        <div id="password-strength-container" class="hidden space-y-1 pt-1">
+                            <div class="flex gap-1">
+                                <div id="str-bar-1" class="h-1.5 flex-1 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                                <div id="str-bar-2" class="h-1.5 flex-1 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                                <div id="str-bar-3" class="h-1.5 flex-1 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                                <div id="str-bar-4" class="h-1.5 flex-1 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                            </div>
+                            <p id="strength-label" class="text-xs text-gray-400"></p>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="space-y-1">
+                        <label class="text-sm font-semibold text-gray-700">
+                            Confirm Password <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                id="reg-confirm-password"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                oninput="validateConfirmPasswordField()"
+                                class="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all bg-gray-50 focus:bg-white"
+                                required
+                            >
+                            <button type="button"
+                                onclick="togglePasswordVisibility('reg-confirm-password', 'eye-icon-confirm')"
+                                class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg id="eye-icon-confirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="reg-confirm-error" class="text-red-500 text-xs hidden"></p>
+                    </div>
+
+                    <!-- Terms Checkbox -->
+                    <div class="flex items-start gap-3 pt-1">
+                        <input
+                            type="checkbox"
+                            id="terms-checkbox"
+                            class="mt-0.5 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+                        >
+                        <label for="terms-checkbox" class="text-xs text-gray-500 cursor-pointer leading-relaxed">
+                            I agree to the
+                            <a href="#" class="text-primary hover:underline font-medium">Terms of Service</a>
+                            and
+                            <a href="#" class="text-primary hover:underline font-medium">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <p id="terms-error" class="text-red-500 text-xs hidden -mt-2">You must agree to the terms.</p>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        id="register-btn"
+                        class="w-full py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all text-base shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        Create Account
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-3 my-5">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-xs text-gray-400 font-medium">ALREADY HAVE AN ACCOUNT?</span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                </div>
+
+                <!-- Login Link -->
+                <a href="/login/"
+                    class="block w-full py-3 border-2 border-primary text-primary font-bold rounded-xl hover:bg-primary-light transition-colors text-sm text-center">
+                    Log In Instead
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <p class="text-center text-xs text-gray-400 mt-4">
+                © 2025 ConnectBook · <a href="#" class="hover:underline">Privacy</a> · <a href="#" class="hover:underline">Terms</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+
+    // REDIRECT IF ALREADY LOGGED IN
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (currentUser) {
+            window.location.href = '/';
+        }
+        document.getElementById('reg-username').focus();
+    });
+
+
+    // TOGGLE PASSWORD
+
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+            `;
+        } else {
+            input.type = 'password';
+            icon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            `;
+        }
+    }
+
+
+    // REAL-TIME FIELD VALIDATION
+
+    function setFieldValid(iconId, inputId) {
+        document.getElementById(iconId).innerHTML = `
+            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>`;
+        document.getElementById(inputId).classList.remove('border-red-400');
+        document.getElementById(inputId).classList.add('border-green-400');
+    }
+
+    function setFieldInvalid(iconId, inputId, errorId, msg) {
+        document.getElementById(iconId).innerHTML = `
+            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>`;
+        document.getElementById(inputId).classList.remove('border-green-400');
+        document.getElementById(inputId).classList.add('border-red-400');
+        if (errorId && msg) {
+            const el = document.getElementById(errorId);
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+    }
+
+    function clearFieldState(iconId, inputId, errorId) {
+        document.getElementById(iconId).innerHTML = '';
+        document.getElementById(inputId).classList.remove('border-red-400', 'border-green-400');
+        if (errorId) document.getElementById(errorId).classList.add('hidden');
+    }
+
+    // Username
+    function validateUsernameField() {
+        const val = document.getElementById('reg-username').value.trim();
+        const errorEl = document.getElementById('reg-username-error');
+        errorEl.classList.add('hidden');
+
+        if (!val) {
+            clearFieldState('username-valid-icon', 'reg-username', null);
+            return false;
+        }
+        if (val.length < 3) {
+            setFieldInvalid('username-valid-icon', 'reg-username', 'reg-username-error', 'Username must be at least 3 characters.');
+            return false;
+        }
+        if (val.length > 30) {
+            setFieldInvalid('username-valid-icon', 'reg-username', 'reg-username-error', 'Username too long (max 30 chars).');
+            return false;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(val)) {
+            setFieldInvalid('username-valid-icon', 'reg-username', 'reg-username-error', 'Only letters, numbers, underscores allowed.');
+            return false;
+        }
+        setFieldValid('username-valid-icon', 'reg-username');
+        return true;
+    }
+
+    // Email
+    function validateEmailField() {
+        const val = document.getElementById('reg-email').value.trim();
+        const errorEl = document.getElementById('reg-email-error');
+        errorEl.classList.add('hidden');
+
+        if (!val) {
+            clearFieldState('email-valid-icon', 'reg-email', null);
+            return true; // Optional
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(val)) {
+            setFieldInvalid('email-valid-icon', 'reg-email', 'reg-email-error', 'Please enter a valid email address.');
+            return false;
+        }
+        setFieldValid('email-valid-icon', 'reg-email');
+        return true;
+    }
+
+    // Password Strength
+    function getPasswordStrength(password) {
+        let score = 0;
+        if (password.length >= 8)  score++;
+        if (password.length >= 12) score++;
+        if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+        return Math.min(score, 4);
+    }
+
+    function updateStrengthBar(score) {
+        const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        const colors = ['bg-gray-200', 'bg-red-400', 'bg-yellow-400', 'bg-blue-400', 'bg-green-500'];
+        const textColors = ['text-gray-400', 'text-red-500', 'text-yellow-600', 'text-blue-600', 'text-green-600'];
+
+        for (let i = 1; i <= 4; i++) {
+            const bar = document.getElementById(`str-bar-${i}`);
+            bar.className = `h-1.5 flex-1 rounded-full transition-colors duration-300 ${i <= score ? colors[score] : 'bg-gray-200'}`;
+        }
+        const label = document.getElementById('strength-label');
+        label.textContent = score > 0 ? `Password strength: ${labels[score]}` : '';
+        label.className = `text-xs ${textColors[score]}`;
+    }
+
+    function validatePasswordField() {
+        const val = document.getElementById('reg-password').value;
+        const errorEl = document.getElementById('reg-password-error');
+        const strengthContainer = document.getElementById('password-strength-container');
+        errorEl.classList.add('hidden');
+
+        if (!val) {
+            clearFieldState('', 'reg-password', null);
+            strengthContainer.classList.add('hidden');
+            return false;
+        }
+
+        strengthContainer.classList.remove('hidden');
+        const score = getPasswordStrength(val);
+        updateStrengthBar(score);
+
+        if (val.length < 6) {
+            document.getElementById('reg-password').classList.add('border-red-400');
+            document.getElementById('reg-password').classList.remove('border-green-400');
+            errorEl.textContent = 'Password must be at least 6 characters.';
+            errorEl.classList.remove('hidden');
+            return false;
+        }
+        document.getElementById('reg-password').classList.remove('border-red-400');
+        document.getElementById('reg-password').classList.add('border-green-400');
+
+        // Also re-validate confirm password if filled
+        const confirmVal = document.getElementById('reg-confirm-password').value;
+        if (confirmVal) validateConfirmPasswordField();
+
+        return true;
+    }
+
+    function validateConfirmPasswordField() {
+        const password = document.getElementById('reg-password').value;
+        const confirm = document.getElementById('reg-confirm-password').value;
+        const errorEl = document.getElementById('reg-confirm-error');
+        errorEl.classList.add('hidden');
+
+        if (!confirm) {
+            document.getElementById('reg-confirm-password').classList.remove('border-red-400', 'border-green-400');
+            return false;
+        }
+        if (password !== confirm) {
+            document.getElementById('reg-confirm-password').classList.add('border-red-400');
+            document.getElementById('reg-confirm-password').classList.remove('border-green-400');
+            errorEl.textContent = 'Passwords do not match.';
+            errorEl.classList.remove('hidden');
+            return false;
+        }
+        document.getElementById('reg-confirm-password').classList.remove('border-red-400');
+        document.getElementById('reg-confirm-password').classList.add('border-green-400');
+        return true;
+    }
+
+
+    // SHOW ALERT
+
+    function showAlert(message, type = 'error') {
+        const alertBox = document.getElementById('alert-box');
+        if (type === 'error') {
+            alertBox.className = 'mb-4 p-3 rounded-xl text-sm font-medium flex items-center gap-2 bg-red-50 text-red-700 border border-red-200';
+            alertBox.innerHTML = `
+                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <span>${message}</span>
+            `;
+        } else {
+            alertBox.className = 'mb-4 p-3 rounded-xl text-sm font-medium flex items-center gap-2 bg-green-50 text-green-700 border border-green-200';
+            alertBox.innerHTML = `
+                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <span>${message}</span>
+            `;
+        }
+        alertBox.classList.remove('hidden');
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+
+    // HANDLE REGISTER SUBMIT
+
+    async function handleRegister(event) {
+        event.preventDefault();
+        document.getElementById('alert-box').classList.add('hidden');
+        document.getElementById('terms-error').classList.add('hidden');
+
+        const username = document.getElementById('reg-username').value.trim();
+        const email    = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const confirm  = document.getElementById('reg-confirm-password').value;
+        const terms    = document.getElementById('terms-checkbox').checked;
+        const btn      = document.getElementById('register-btn');
+
+        // Validate all fields
+        let isValid = true;
+
+        if (!validateUsernameField()) isValid = false;
+        if (!validateEmailField())    isValid = false;
+        if (!validatePasswordField()) isValid = false;
+        if (!validateConfirmPasswordField()) isValid = false;
+
+        if (!terms) {
+            document.getElementById('terms-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            showAlert('Please fix the errors above before submitting.');
+            return;
+        }
+
+        // Loading state
+        btn.disabled = true;
+        btn.innerHTML = `
+            <span class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Creating Account...
+            </span>
+        `;
+
+        const payload = { username, password };
+        if (email) payload.email = email;
+
+        const res = await apiCall('/auth/register/', 'POST', payload);
+
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+
+        if (res.ok) {
+            // Auto login after register
+            showAlert('Account created! Logging you in...', 'success');
+
+            const loginRes = await apiCall('/auth/login/', 'POST', { username, password });
+
+            if (loginRes.ok) {
+                saveUser(loginRes.data.user);
+                showToast(`Welcome to ConnectBook, ${username}! 🎉`, 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } else {
+                // Registration OK but auto-login failed - redirect to login
+                setTimeout(() => {
+                    window.location.href = '/login/';
+                }, 1500);
+            }
+        } else {
+            // Handle API errors
+            const err = res.data;
+            if (err?.error) {
+                showAlert(err.error);
+            } else if (err?.username) {
+                showAlert(Array.isArray(err.username) ? err.username[0] : err.username);
+            } else if (err?.password) {
+                showAlert(Array.isArray(err.password) ? err.password[0] : err.password);
+            } else if (err?.email) {
+                showAlert(Array.isArray(err.email) ? err.email[0] : err.email);
+            } else if (err?.detail) {
+                showAlert(err.detail);
+            } else {
+                showAlert('Registration failed. Please try again.');
+            }
+
+            // Shake animation
+            const card = document.querySelector('.bg-white.rounded-2xl');
+            card.style.animation = 'shake 0.4s ease';
+            setTimeout(() => card.style.animation = '', 400);
+        }
+    }
+</script>
+
+<style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%       { transform: translateX(-8px); }
+        40%       { transform: translateX(8px); }
+        60%       { transform: translateX(-5px); }
+        80%       { transform: translateX(5px); }
+    }
+</style>
+{% endblock %}

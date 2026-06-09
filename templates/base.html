@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ConnectBook{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1877f2',
+                        'primary-dark': '#166fe5',
+                        'primary-light': '#e7f0fd',
+                        surface: '#f0f2f5',
+                        card: '#ffffff',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Arial, sans-serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        /* Sticky sidebar height fix */
+        .sidebar-scroll {
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        /* Post image */
+        .post-img { max-height: 500px; object-fit: cover; width: 100%; }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1877f2;
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Modal */
+        .modal-overlay {
+            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.5);
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            top: 70px; right: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            min-width: 250px;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-success { background: #42b72a; }
+        .toast-error { background: #fa383e; }
+        .toast-info { background: #1877f2; }
+
+        /* Avatar placeholder */
+        .avatar-placeholder {
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #1877f2, #166fe5);
+            color: white; font-weight: 700; font-size: 16px;
+            border-radius: 50%;
+        }
+        
+        /* Hover effects */
+        .nav-icon-btn:hover { background: #e4e6eb; }
+        .post-action-btn:hover { background: #e4e6eb; }
+
+        /* Comment box */
+        .comment-input:focus { outline: none; }
+
+        /* Reply indent */
+        .reply-item { margin-left: 48px; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- ═══════════════════════════════════════ NAVBAR ═══════════════════════════════════════ -->
+    <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-14">
+        <div class="max-w-screen-xl mx-auto px-4 h-full flex items-center justify-between">
+            
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 15v-5H9l3-7 3 7h-2v5h-2z"/>
+                    </svg>
+                </div>
+                <span class="text-primary font-bold text-xl hidden sm:block">ConnectBook</span>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="hidden md:flex items-center bg-surface rounded-full px-4 py-2 w-64">
+                <svg class="w-4 h-4 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" placeholder="Search ConnectBook..." class="bg-transparent text-sm outline-none w-full text-gray-700" id="searchInput">
+            </div>
+
+            <!-- Nav Actions -->
+            <div class="flex items-center gap-2">
+                <!-- Not Logged In -->
+                <div id="nav-guest" class="flex items-center gap-2">
+                    <a href="/login/" class="px-4 py-1.5 text-sm font-semibold text-primary border border-primary rounded-md hover:bg-primary-light transition-colors">
+                        Log In
+                    </a>
+                    <a href="/register/" class="px-4 py-1.5 text-sm font-semibold text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors">
+                        Sign Up
+                    </a>
+                </div>
+
+                <!-- Logged In -->
+                <div id="nav-user" class="hidden items-center gap-3">
+                    <span class="text-sm text-gray-700 font-semibold hidden sm:block" id="nav-username"></span>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="w-9 h-9 avatar-placeholder nav-icon-btn rounded-full transition-colors" id="nav-avatar-btn">
+                            <span id="nav-avatar-letter">U</span>
+                        </button>
+                        <!-- Dropdown -->
+                        <div id="user-dropdown" class="hidden absolute right-0 top-11 bg-white rounded-xl shadow-xl border border-gray-100 py-2 w-52 z-50">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <p class="font-semibold text-gray-800" id="dropdown-username">Username</p>
+                                <p class="text-xs text-gray-500" id="dropdown-email">email@example.com</p>
+                                <span class="inline-block mt-1 px-2 py-0.5 text-xs bg-primary-light text-primary rounded-full font-medium" id="dropdown-role">Regular User</span>
+                            </div>
+                            <button onclick="handleLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                                Log Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Main Content -->
+    <main class="pt-14">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!--  BASE JAVASCRIPT  -->
+    <script>
+
+        // GLOBAL STATE
+
+        const API_BASE = '';  // Same origin - Django serves both
+        let currentUser = null;
+
+
+        // CSRF TOKEN
+  
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let c of cookies) {
+                    c = c.trim();
+                    if (c.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(c.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        // API HELPER
+
+        async function apiCall(url, method = 'GET', data = null, isFormData = false) {
+            const options = {
+                method,
+                headers: {},
+                credentials: 'same-origin',
+            };
+
+            const csrfToken = getCookie('csrftoken');
+            if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+                options.headers['X-CSRFToken'] = csrfToken;
+            }
+
+            if (data) {
+                if (isFormData) {
+                    options.body = data; // FormData object
+                } else {
+                    options.headers['Content-Type'] = 'application/json';
+                    options.body = JSON.stringify(data);
+                }
+            }
+
+            try {
+                const response = await fetch(API_BASE + url, options);
+                const json = await response.json();
+                return { ok: response.ok, status: response.status, data: json };
+            } catch (err) {
+                console.error('API Error:', err);
+                return { ok: false, status: 0, data: { error: 'Network error' } };
+            }
+        }
+
+
+        // TOAST NOTIFICATION
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'none';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+
+        // AUTH STATE MANAGEMENT
+
+        function loadUserFromStorage() {
+            const stored = localStorage.getItem('currentUser');
+            if (stored) {
+                currentUser = JSON.parse(stored);
+                updateNavUI();
+            }
+        }
+
+        function saveUser(userData) {
+            currentUser = userData;
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            updateNavUI();
+        }
+
+        function clearUser() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateNavUI();
+        }
+
+        function updateNavUI() {
+            const guestNav = document.getElementById('nav-guest');
+            const userNav = document.getElementById('nav-user');
+            const navUsername = document.getElementById('nav-username');
+            const navAvatarLetter = document.getElementById('nav-avatar-letter');
+            const dropdownUsername = document.getElementById('dropdown-username');
+            const dropdownEmail = document.getElementById('dropdown-email');
+            const dropdownRole = document.getElementById('dropdown-role');
+
+            if (currentUser) {
+                guestNav.classList.add('hidden');
+                userNav.classList.remove('hidden');
+                userNav.classList.add('flex');
+                navUsername.textContent = currentUser.username;
+                navAvatarLetter.textContent = currentUser.username.charAt(0).toUpperCase();
+                dropdownUsername.textContent = currentUser.username;
+                dropdownEmail.textContent = currentUser.email || '';
+                dropdownRole.textContent = currentUser.role || 'Regular User';
+            } else {
+                guestNav.classList.remove('hidden');
+                userNav.classList.add('hidden');
+                userNav.classList.remove('flex');
+            }
+        }
+
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('user-dropdown');
+            const btn = document.getElementById('nav-avatar-btn');
+            if (dropdown && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+
+        // LOGOUT
+
+        async function handleLogout() {
+            const res = await apiCall('/auth/logout/', 'POST');
+            if (res.ok) {
+                clearUser();
+                showToast('Successfully logged out!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                // Force logout even if API fails
+                clearUser();
+                window.location.reload();
+            }
+        }
+
+
+        // AVATAR HELPER
+
+        function getAvatarHTML(user, size = 40) {
+            const letter = user?.username?.charAt(0).toUpperCase() || 'U';
+            const colors = ['#1877f2', '#42b72a', '#fa383e', '#f5a623', '#7b68ee', '#20b2aa'];
+            const colorIndex = (user?.username?.charCodeAt(0) || 0) % colors.length;
+            const color = colors[colorIndex];
+            return `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:${size * 0.4}px;flex-shrink:0;">${letter}</div>`;
+        }
+
+
+        // TIME FORMAT
+
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // Init on load
+        loadUserFromStorage();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
