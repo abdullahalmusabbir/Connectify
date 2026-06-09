@@ -16,15 +16,10 @@
         <a href="/login/" class="inline-block px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-md">Log In</a>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
-         3-COLUMN LAYOUT
-         Left(1) | Middle(3) | Right(1)
-    ═══════════════════════════════════════════════ -->
+    <!-- 3-COLUMN LAYOUT -->
     <div id="profile-content" class="hidden grid grid-cols-1 md:grid-cols-5 gap-4">
 
-        <!-- ╔══════════════════════╗
-             ║    LEFT SIDEBAR      ║
-             ╚══════════════════════╝ -->
+        <!--LEFT SIDEBAR -->
         <aside class="hidden md:block md:col-span-1">
             <div class="sticky top-16 sidebar-scroll pb-6 space-y-3 pr-1">
 
@@ -74,9 +69,7 @@
             </div>
         </aside>
 
-        <!-- ╔══════════════════════════════════════╗
-             ║          MIDDLE — MAIN CONTENT        ║
-             ╚══════════════════════════════════════╝ -->
+        <!--MIDDLE — MAIN CONTENT -->
         <main class="col-span-1 md:col-span-3 space-y-4 pb-8">
 
             <!-- Profile Header Card -->
@@ -241,10 +234,7 @@
 
         </main>
 
-        <!-- ╔══════════════════════════════════════╗
-             ║   RIGHT SIDEBAR — PENDING POSTS      ║
-             ║   Moderator + Super Admin only       ║
-             ╚══════════════════════════════════════╝ -->
+        <!-- RIGHT SIDEBAR -->
         <aside class="hidden xl:block xl:col-span-1" id="right-sidebar">
             <div class="sticky top-16 sidebar-scroll pb-6 space-y-3 pl-1">
 
@@ -318,8 +308,8 @@
             </div>
         </aside>
 
-    </div><!-- /grid -->
-</div><!-- /container -->
+    </div>
+</div>
 
 
 <!-- ══════════════════════════════════════════════════
@@ -517,9 +507,8 @@
 
 {% block extra_js %}
 <script>
-    // ═══════════════════════════════════════════════════
+
     // ROLE CONFIG
-    // ═══════════════════════════════════════════════════
     const ROLES = {
         'Super Admin': {
             icon: '👑', coverGradient: 'linear-gradient(135deg,#7c3aed,#4f46e5)',
@@ -583,9 +572,7 @@
         },
     };
 
-    // ═══════════════════════════════════════════════════
     // STATE
-    // ═══════════════════════════════════════════════════
     let profilePosts     = [];
     let profileComments  = [];
     let allPostsCache    = [];       // all posts from API
@@ -595,9 +582,8 @@
     let currentRole      = null;
     let pendingActivePost = null;   // post currently open in detail modal
 
-    // ═══════════════════════════════════════════════════
     // INIT
-    // ═══════════════════════════════════════════════════
+
     document.addEventListener('DOMContentLoaded', () => {
         if (!currentUser) {
             document.getElementById('profile-not-logged-in').classList.remove('hidden');
@@ -616,9 +602,7 @@
         setupStatusRadios();
     });
 
-    // ═══════════════════════════════════════════════════
     // STATUS RADIO VISUAL
-    // ═══════════════════════════════════════════════════
     function setupStatusRadios() {
         document.querySelectorAll('input[name="post-status-radio"]').forEach(radio => {
             radio.addEventListener('change', () => {
@@ -667,9 +651,7 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════
     // BUILD ROLE UI
-    // ═══════════════════════════════════════════════════
     function buildRoleUI() {
         const r = currentRole;
         const u = currentUser;
@@ -770,22 +752,20 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════
     // RENDER PROFILE HEADER
-    // ═══════════════════════════════════════════════════
     function renderProfileHeader() {
         const u = currentUser;
         const color  = getUserColor(u.username);
         const letter = u.username.charAt(0).toUpperCase();
 
-        document.getElementById('profile-avatar-main').textContent       = letter;
-        document.getElementById('profile-avatar-main').style.background  = color;
-        document.getElementById('profile-fullname').textContent          = u.username;
-        document.getElementById('profile-username-handle').textContent   = u.username;
-        document.getElementById('modal-username').textContent            = u.username;
-        document.getElementById('about-username').textContent            = u.username;
-        document.getElementById('about-email').textContent               = u.email || 'Not provided';
-        document.getElementById('about-role').textContent                = u.role  || 'Regular User';
+        document.getElementById('profile-avatar-main').textContent = letter;
+        document.getElementById('profile-avatar-main').style.background = color;
+        document.getElementById('profile-fullname').textContent = u.username;
+        document.getElementById('profile-username-handle').textContent = u.username;
+        document.getElementById('modal-username').textContent  = u.username;
+        document.getElementById('about-username').textContent = u.username;
+        document.getElementById('about-email').textContent= u.email || 'Not provided';
+        document.getElementById('about-role').textContent= u.role  || 'Regular User';
 
         const mav = document.getElementById('modal-avatar');
         mav.textContent = letter; mav.style.background = color;
@@ -795,9 +775,8 @@
         document.getElementById('edit-email').value    = u.email || '';
     }
 
-    // ═══════════════════════════════════════════════════
     // LOAD MY POSTS
-    // ═══════════════════════════════════════════════════
+
     async function loadMyPosts() {
         const loading = document.getElementById('my-posts-loading');
         const list    = document.getElementById('my-posts-list');
@@ -837,9 +816,7 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════
     // PENDING POSTS — RIGHT SIDEBAR
-    // ═══════════════════════════════════════════════════
     async function loadPendingPosts() {
         if (!currentRole.canPublish) return;
 
@@ -962,9 +939,8 @@
         </div>`;
     }
 
-    // ═══════════════════════════════════════════════════
     // PENDING DETAIL MODAL
-    // ═══════════════════════════════════════════════════
+
     function openPendingDetailModal(postId) {
         const post = allPostsCache.find(p => p.id === postId);
         if (!post) return;
@@ -1113,9 +1089,7 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════
     // MODERATION TAB
-    // ═══════════════════════════════════════════════════
     function updateModerationStats(posts) {
         const published = posts.filter(p => p.status === 'published').length;
         const drafts    = posts.filter(p => p.status === 'draft').length;
@@ -1196,9 +1170,7 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════
     // PROFILE POST CARD
-    // ═══════════════════════════════════════════════════
     function createProfilePostCard(post) {
         const div = document.createElement('div');
         div.className = 'bg-white rounded-xl shadow-sm overflow-hidden fade-in profile-post-card';
@@ -1247,9 +1219,7 @@
         return div;
     }
 
-    // ═══════════════════════════════════════════════════
     // LOAD MY COMMENTS
-    // ═══════════════════════════════════════════════════
     async function loadMyComments() {
         const loading = document.getElementById('my-comments-loading');
         const list    = document.getElementById('my-comments-list');
@@ -1308,9 +1278,7 @@
             </div>`).join('');
     }
 
-    // ═══════════════════════════════════════════════════
     // TABS
-    // ═══════════════════════════════════════════════════
     function switchTab(tab) {
         ['posts','about','comments','moderation'].forEach(t => {
             const panel = document.getElementById(`tab-panel-${t}`);
@@ -1330,9 +1298,7 @@
         if (tab === 'moderation') loadModerationPosts();
     }
 
-    // ═══════════════════════════════════════════════════
     // DELETE MY POST / COMMENT
-    // ═══════════════════════════════════════════════════
     async function deleteMyPost(postId) {
         if (!confirm('Delete this post permanently?')) return;
         const res = await apiCall(`/posts/${postId}/delete/`, 'DELETE');
@@ -1359,9 +1325,7 @@
         } else { showToast('Failed', 'error'); }
     }
 
-    // ═══════════════════════════════════════════════════
     // EDIT PROFILE
-    // ═══════════════════════════════════════════════════
     function openEditModal() { document.getElementById('edit-profile-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; document.getElementById('edit-alert').classList.add('hidden'); }
     function closeEditModal() { document.getElementById('edit-profile-modal').classList.add('hidden'); document.body.style.overflow=''; }
 
@@ -1391,9 +1355,7 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════
     // CREATE / EDIT POST
-    // ═══════════════════════════════════════════════════
     function openEditPostModal(postId) {
         const post = profilePosts.find(p=>p.id===postId); if(!post)return;
         editingPostId=postId;
@@ -1463,10 +1425,8 @@
             errEl.textContent=err;errEl.classList.remove('hidden');
         }
     }
-
-    // ═══════════════════════════════════════════════════
+    
     // UTILITIES
-    // ═══════════════════════════════════════════════════
     function getUserColor(username){const colors=['#1877f2','#42b72a','#fa383e','#f5a623','#7b68ee','#20b2aa','#ff6347','#4169e1'];return colors[(username?.charCodeAt(0)||0)%colors.length];}
     function capitalize(str){return str?str.charAt(0).toUpperCase()+str.slice(1):'';}
     function escapeHTML(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
